@@ -1,134 +1,164 @@
 ---
 title: 'CI/CD'
-description: 'Learn how to build a CI/CD with Github Actions
+description: 'Learn how to deploy with `Github Actions` and `AWS CodeDeploy`'
 ---
 
 <Info>
-    **Prerequisite** You should have installed Node.js (version 18.10.0 or higher).
+    **Prerequisite** 배포할 인스턴스(`EC2`) 필요.
 </Info>
+<Frame>
+    <img className="block dark:hidden" src="/images/Blank%20diagram%20-%20Page%202.png" alt="Hero Light"/>
+    <img className="hidden dark:block" src="/images/Blank%20diagram%20-%20Page%201.png" alt="Hero Dark"/>
+</Frame>
+## Step 1. 권한 생성 (IAM)
 
-Step 1. 코드 보관소 생성(S3 Bucket 사용)
-Step 2. 인스턴스 생성(EC2)
-Step 3. 배포 관리자 생성(CodeDeploy)
-Step 4. 권한 생성(IAM)
-    - 역할 생성
-        A. 배포 역할
-| EC2 Role                |
-|-------------------------|
-| AWSCodeDeployFullAccess |
-| AmazonS3FullAccess      |
+#### 역할:
 
-        B. 빌드 역할
-| CodeDeploy Role   |
-|-------------------|
-| AWSCodeDeployRole |
+<AccordionGroup>
+    <Accordion icon="aws" title="EC2">
+        <Frame>
+            <img className="block dark:hidden" src="/images/cicd/iam/role/create.png" alt="Hero Light"/>
+        </Frame>
+        `IAM` -> `역할` -> `역할 생성`
+        <Frame>
+            <img className="block dark:hidden" src="/images/cicd/iam/role/ec2/choose.png" alt="Hero Light"/>
+        </Frame>
+        `AWS 서비스` -> `사용 사례` -> `EC2`
+        <Frame>
+            <img className="block dark:hidden" src="/images/cicd/iam/role/role.png" alt="Hero Light"/>
+        </Frame>
+        `권한 정책` -> `AmazonS3FullAccess`, `AWSCodeDeployFullAccess`(검색 후) 선택
+        <Frame>
+            <img className="block dark:hidden" src="/images/cicd/iam/role/ec2/naming.png" alt="Hero Light"/>
+        </Frame>
+        `역할 이름` 설정 -> `역할 생성`
+    </Accordion>
+    <Accordion icon="aws" title="CodeDeploy">
+        <Frame>
+            <img className="block dark:hidden" src="/images/cicd/iam/role/create.png" alt="Hero Light"/>
+        </Frame>
+        `IAM` -> `역할` -> `역할 생성`
+        <Frame>
+            <img className="block dark:hidden" src="/images/cicd/iam/role/codeDeploy/choose.png" alt="Hero Light"/>
+        </Frame>
+        `AWS 서비스` -> `사용 사례` -> `EC2`
+        <Frame>
+            <img className="block dark:hidden" src="/images/cicd/iam/role/codeDeploy/naming.png" alt="Hero Light"/>
+        </Frame>
+        `역할 이름` 설정 -> `역할 생성`
+    </Accordion>
+</AccordionGroup>
+#### 사용자:
+<AccordionGroup>
+    <Accordion icon="aws" title="GithubActionsRole">
+        <Frame>
+            <img className="block dark:hidden" src="/images/cicd/iam/user/create.png" alt="Hero Light"/>
+        </Frame>
+        `IAM` -> `사용자` -> `사용자 추가`
+        <Frame>
+            <img className="block dark:hidden" src="/images/cicd/iam/user/initialize.png" alt="Hero Light"/>
+        </Frame>
+        `사용자 이름` 설정 -> `AWS Management Console에 대한 사용자 액세스 권한 제공` 선택 -> `콘솔 암호`(자유)
 
-    - 계정 생성
-        A. 배포 계정
-| Github Actions Build IAM User |
-|-------------------------------|
-| AWSCodeDeployFullAccess       |
-| AmazonS3FullAccess            |
-        B. 액세스 키 생성
-Github Actions 액세스 키 설정
+        <Frame>
+            <img className="block dark:hidden" src="/images/cicd/iam/user/role.png" alt="Hero Light"/>
+        </Frame>
+        `직접 정책 연결` -> `AmazonS3FullAccess`, `AWSCodeDeployFullAccess`(검색 후) 선택
 
-Step 5.
+        <Frame>
+            <img className="block dark:hidden" src="/images/cicd/iam/user/details.png" alt="Hero Light"/>
+        </Frame>
+        - 액세스 키 설정:
+        <Frame>
+            <img className="block dark:hidden" src="/images/cicd/iam/user/accessKey/create.png" alt="Hero Light"/>
+        </Frame>
+        `IAM` -> `사용자` -> `mood-githubactions-codedeploy(예시)` -> `보안 자격 증명` -> `액세스 키 만들기`
+        <Frame>
+            <img className="block dark:hidden" src="/images/cicd/iam/user/accessKey/access-key-practice.png" alt="Hero Light"/>
+        </Frame>
+        `CLI` 선택
+
+        <Warning>
+
+            권장사항 확인 및 체크 필요
+
+        </Warning>
+        <Frame>
+            <img className="block dark:hidden" src="/images/cicd/iam/user/accessKey/tag-naming.png" alt="Hero Light"/>
+        </Frame>
+
+        <Frame>
+            <img className="block dark:hidden" src="/images/cicd/iam/user/accessKey/initialize.png" alt="Hero Light"/>
+        </Frame>
+
+        <Warning>
+
+            액세스 키 및 비밀 액세스 키 노출 주의(예시의 액세스 키는 캡쳐 후 재생성 하였음)
+
+        </Warning>
+        <Warning>
+
+            csv 파일 다운로드 혹은 안전한 곳에 데이터 저장 필요!
+
+        </Warning>
+    </Accordion>
+</AccordionGroup>
+
+## Step 2 Github Actions Secrets 설정
+
+<AccordionGroup>
+    <Accordion icon="github" title="AccessKey">
+        <Frame>
+            <img className="block dark:hidden" src="/images/cicd/github-actions-secrets/create.png" alt="Hero Light"/>
+        </Frame>
+        `Repository` -> `Settings` -> `Secrets and variables` -> `Actions` -> `New repository secret`
+        <Warning>
+            액세스 키 및 비밀 액세스 키 노출 주의
+        </Warning>
+    </Accordion>
+</AccordionGroup>
+
+
+## Step 3 배포 관리자 설정 (Code Deploy)
+
+## Step 4. 스크립트 생성(e.g., appspec.yml, deploy.sh.)
+
+## Step 5. EC2에 CodeDeploy Agent 설치
+
+#### CLI 설치
 
 <CodeGroup>
 
-```bash AmazonLinux
+    ```bash Amazon Linux
     sudo yum update
     sudo yum install ruby
     sudo yum install wget
     cd /home/ec2-user
-    # wget https://:bucket-name.s3.:region-identifier.amazonaws.com/latest/install
-    wget https://aws-codedeploy-ap-northeast-2.s3.ap-northeast-2.amazonaws.com/latest/install
+    wget https://#{bucket-name}.s3.${region-identifier}.amazonaws.com/latest/install
+    # wget https://example-bucket.s3.ap-northeast-2.amazonaws.com/latest/install
     chmod +x ./install
+    # 최신버전 설치
     sudo ./install auto
-```
+    # 시스템 확인
+    systemctl status codedeploy-agent
+    ```
+    ```bash Ubuntu
+    sudo apt update
+    sudo apt install ruby
+    sudo apt install wget
+    cd /home/ec2-user
+    wget https://#{bucket-name}.s3.${region-identifier}.amazonaws.com/latest/install
+    # wget https://example-bucket.s3.ap-northeast-2.amazonaws.com/latest/install
+    chmod +x ./install
+    # 최신버전 설치
+    sudo ./install auto
+    # 시스템 확인
+    systemctl status codedeploy-agent
+    ```
 
 </CodeGroup>
 [리전별 리소스 키트 버킷 명](https://docs.aws.amazon.com/ko_kr/codedeploy/latest/userguide/resource-kit.html#resource-kit-bucket-names)
 
-<CodeGroup>
+Step 6. 권한 부여
 
-```bash AmazonLinux
-    systemctl status codedeploy-agent
-```
-
-</CodeGroup>
-
-Step 2. Go to the docs are located (where you can find `mint.json`) and run the following command:
-
-```bash
-mintlify dev
-```
-
-The documentation website is now available at `http://localhost:3000`.
-
-### Custom Ports
-
-Mintlify uses port 3000 by default. You can use the `--port` flag to customize the port Mintlify runs on. For example, use this command to run in port 3333:
-
-```bash
-mintlify dev --port 3333
-```
-
-You will see an error like this if you try to run Mintlify in a port that's already taken:
-
-```md
-Error: listen EADDRINUSE: address already in use :::3000
-```
-
-## Mintlify Versions
-
-Each CLI is linked to a specific version of Mintlify. Please update the CLI if your local website looks different than production.
-
-<CodeGroup>
-
-```bash npm
-npm i -g mintlify@latest
-```
-
-```bash yarn
-yarn global upgrade mintlify
-```
-
-</CodeGroup>
-
-## Deployment
-
-<Tip>
-  Unlimited editors available under the [Startup
-  Plan](https://mintlify.com/pricing)
-</Tip>
-
-You should see the following if the deploy successfully went through:
-
-<Frame>
-  <img src="/images/checks-passed.png" style={{ borderRadius: '0.5rem' }} />
-</Frame>
-
-## Troubleshooting
-
-Here's how to solve some common problems when working with the CLI.
-
-<AccordionGroup>
-  <Accordion title="Mintlify is not loading">
-    Update to Node v18. Run `mintlify install` and try again.
-  </Accordion>
-  <Accordion title="No such file or directory on Windows">
-Go to the `C:/Users/Username/.mintlify/` directory and remove the `mint`
-folder. Then Open the Git Bash in this location and run `git clone
-https://github.com/mintlify/mint.git`.
-
-Repeat step 3.
-
-  </Accordion>
-  <Accordion title="Getting an unknown error">
-    Try navigating to the root of your device and delete the ~/.mintlify folder.
-    Then run `mintlify dev` again.
-  </Accordion>
-</AccordionGroup>
-
-Curious about what changed in a CLI version? [Check out the CLI changelog.](/changelog/command-line)
+Step 7. Github Actions 설정
