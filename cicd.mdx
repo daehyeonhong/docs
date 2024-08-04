@@ -74,7 +74,8 @@ description: 'Learn how to deploy with `Github Actions` and `AWS CodeDeploy`'
         </Frame>
         `IAM` -> `사용자` -> `mood-githubactions-codedeploy(예시)` -> `보안 자격 증명` -> `액세스 키 만들기`
         <Frame>
-            <img className="block dark:hidden" src="/images/cicd/iam/user/accessKey/access-key-practice.png" alt="Hero Light"/>
+            <img className="block dark:hidden" src="/images/cicd/iam/user/accessKey/access-key-practice.png"
+                 alt="Hero Light"/>
         </Frame>
         `CLI` 선택
 
@@ -121,6 +122,26 @@ description: 'Learn how to deploy with `Github Actions` and `AWS CodeDeploy`'
 
 ## Step 3 배포 관리자 설정 (Code Deploy)
 
+<AccordionGroup>
+    <Accordion icon="aws" title="CodeDeploy">
+        <Frame>
+            <img className="block dark:hidden" src="/images/cicd/codedeploy/create.png" alt="Hero Light"/>
+        </Frame>
+        `CodeDeploy` -> `시작하기` -> `애플리케이션 생성` -> `컴퓨팅 플랫폼 설정`: EC2
+        <Frame>
+            <img className="block dark:hidden" src="/images/cicd/codedeploy/deploy-group/create.png" alt="Hero Light"/>
+        </Frame>
+        `애플리케이션` -> `배포 그룹` -> `배포 그룹 설정`
+
+        `서비스 역할`: 생성한 CodeDeploy IAM -> `배포 유형`: 현재 위치 -> `환경 구성`: EC2 인스턴스 항목 선택
+        <Frame>
+            <img className="block dark:hidden" src="/images/cicd/codedeploy/deploy-group/img.png" alt="Hero Light"/>
+        </Frame>
+        `환경 구성-태그 그룹`: EC2 인스턴스 태그 지정 -> `` -> `배포 설정-배포 구성` -> `로드 밸런서`: 체크 해제
+        `` ->
+    </Accordion>
+</AccordionGroup>
+
 ## Step 4. 스크립트 생성(e.g., appspec.yml, deploy.sh.)
 
 ## Step 5. EC2에 CodeDeploy Agent 설치
@@ -134,7 +155,7 @@ description: 'Learn how to deploy with `Github Actions` and `AWS CodeDeploy`'
     sudo yum install ruby
     sudo yum install wget
     cd /home/ec2-user
-    wget https://#{bucket-name}.s3.${region-identifier}.amazonaws.com/latest/install
+    wget https://#{bucket - name}.s3.${region - identifier}.amazonaws.com/latest/install
     # wget https://example-bucket.s3.ap-northeast-2.amazonaws.com/latest/install
     chmod +x ./install
     # 최신버전 설치
@@ -147,7 +168,7 @@ description: 'Learn how to deploy with `Github Actions` and `AWS CodeDeploy`'
     sudo apt install ruby
     sudo apt install wget
     cd /home/ec2-user
-    wget https://#{bucket-name}.s3.${region-identifier}.amazonaws.com/latest/install
+    wget https://#{bucket - name}.s3.${region - identifier}.amazonaws.com/latest/install
     # wget https://example-bucket.s3.ap-northeast-2.amazonaws.com/latest/install
     chmod +x ./install
     # 최신버전 설치
